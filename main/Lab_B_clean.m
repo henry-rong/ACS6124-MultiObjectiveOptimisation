@@ -57,37 +57,51 @@ priorities = [3 2 2 1 0 1 0 0 1 2];
 % goals2 = [zeros(1,12) ; [1 1] goals];
 % priorities = [1 4 4 3 2 3 2 2 3 4];
 
-
-
 O_rlh = rlh(samples,dimensions,0); % latin hypercube sample for 100 samples in 2 dimensions, with points at the centre of their grids
 X_rlh = log(O_rlh+1); % take the log of the latin-hypercube sampled values, to increase density of sampling. add 1 to remove negative terms. max values limited to ln(2)
-
-P = generatePopulation(X_rlh); % preprocesses input to evaluate for Z, changes gain margin unit to decibels, changes phase margin to distance from midpoint, appends inputs (for comparison)
-P_start = P;
 Phiq = mmphi(X_rlh, 1, 1)
 
+% initialise population
+P = generatePopulation(X_rlh); % preprocesses input to evaluate for Z, changes gain margin unit to decibels, changes phase margin to distance from midpoint, appends inputs (for comparison)
+RankV_parents = samples - rank_prf(P(:,3:12),goals,priorities); % Rank 0 is best. Class contains highest value of priority that is violated. Satisfying points -1.
+distances_parents = crowding(P,RankV_parents);
+selectThese = btwr(RankV_parents,distances_parents,samples);
+P = P(selectThese,:);
+P_start = P;
 
+% enter main loop of optimiser
 for i = 1:iterations
-    [RankV_parents,ClassV] = optimizeControlSystem(P(:,3:12),goals,priorities); % Rank 0 is best. Class contains highest value of priority that is violated. Satisfying points -1.
-    RankV_parents = samples - RankV_parents;
-    distances_parents = crowding(P,RankV_parents);
-    selectThese = btwr(RankV_parents,distances_parents,samples);
-    parents = P(selectThese,:);
+
+    % evaluate fitness of parents
+    parents = P;
+    RankV_parents = samples - rank_prf(parents(:,3:12),goals,priorities); % Rank 0 is best. Class contains highest value of priority that is violated. Satisfying points -1.
+    distances_parents = crowding(parents,RankV_parents);
+
+    % produce offspring
     offspring = sbx(parents, goals2);
     postMute = polymut(offspring,goals2);
     X_children = postMute(:,1:2);
     P_children = generatePopulation(X_children);
-    [RankV_children,ClassV] = optimizeControlSystem(P_children(:,3:12),goals,priorities); % Rank 0 is best. Class contains highest value of priority that is violated. Satisfying points -1.
-    RankV_children = samples - RankV_children;
-    distances_children = crowding(P,RankV_children);
-    selectThese = btwr(RankV_children,distances_children,samples);
-    children = P_children(selectThese,:);
+
+    % evaluate fitness of children
+    RankV_children = samples - rank_prf(P_children(:,3:12),goals,priorities); % Rank 0 is best. Class contains highest value of priority that is violated. Satisfying points -1.
+    distances_children = crowding(P_children,RankV_children);
+
+    % concatenate evaluated parents
     unifiedPop = [parents;children];
     ranks = [RankV_parents; RankV_children];
     crowdings = [distances_parents; distances_children];
+
+    % evaluate fitnesses
+    selectThese = btwr(ranks,crowdings,samples);
+    unifiedPop = unifiedPop(selectThese,:);
+
+    % selection-for-survival operator
     newPop = reducerNSGA_II(unifiedPop,ranks,crowdings);
     P = unifiedPop(newPop,:);
     % HV = Hypervolume_MEX()
+
+    % visualise optimisation progress
     progress = i/iterations;
     waitbar(progress,f,"Iteration " + num2str(i) + " of " + num2str(iterations))
     % display("Iteration " + num2str(i) + " of " + num2str(iterations))
@@ -103,10 +117,11 @@ finalRanks = ranks(newPop,:);
 ylabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 
+hold off
 display(P)
 
 figure(2)
-hold off
+
 tab_rlh = array2table(P,'VariableNames',performance_criteria);
 p2 = parallelplot(tab_rlh)
 
@@ -120,7 +135,6 @@ hold on
 scatter3(P_100(:,1),P_100(:,2),finalRanks(finalRanks == 100),'filled','r')
 legend("Dominated Solutions","Pareto Front")
 
-
 % create a matrix of subplots of pareto plots for every objective combination 
 
 figure(4)
@@ -133,33 +147,18 @@ for objective_row = 1:10
     for objective_col = 1:objective_row
         tile_num = (objective_row-1)*10 + objective_col;
         nexttile(tile_num)
-        
-        display("plot " + num2str((objective_row - 1)*10 + objective_col)+" row: " + num2str(objective_row) + " col: " + num2str(objective_col))
-
         if objective_col == 1
             ylabel(performance_criteria{2 + objective_row})
-            display(performance_criteria{2 + objective_row})
         elseif objective_row == 10
             xlabel(performance_criteria{2 + objective_col})
-            display(performance_criteria{2 + objective_col})
         end
 
         if objective_col == objective_row
 
             histogram(P(:,2 + objective_col))
-            display("plotted histogram")
-            
         else
 
-            scatter(P(:,2 + objective_col),P(:,2 + objective_row),'filled',sz = 1)
-            % hold on
-            % scatter(P_100(:,2 + objective_col),P_100(:,2 + objective_row),'filled','r')
-            % yline(goals(objective_row))
-            % xline(goals(objective_col))
-            % xlim([0 goals(objective_col) + 1])
-            % ylim([0 goals(objective_row) + 1])
-            display("plotted subplot")
-        
+            scatter(P(:,2 + objective_col),P(:,2 + objective_row),'filled')
         end
     end
 end
