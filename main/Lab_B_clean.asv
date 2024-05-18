@@ -20,7 +20,7 @@ performance_criteria = {
 'undershoot (% points)',
 '2% settling time',
 'steady-state error (% points))',
-'aggregate control input (MJ)}'};
+'aggregate control input (MJ)'};
 
 samples = 100;
 dimensions = 2;
@@ -49,6 +49,15 @@ iterations = 150;
 goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
 goals2 = [zeros(1,12) ; [1 1] goals];
 priorities = [3 2 2 1 0 1 0 0 1 2];
+
+%% own interpretation 
+
+% iterations = 150;
+% goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
+% goals2 = [zeros(1,12) ; [1 1] goals];
+% priorities = [1 4 4 3 2 3 2 2 3 4];
+
+
 
 O_rlh = rlh(samples,dimensions,0); % latin hypercube sample for 100 samples in 2 dimensions, with points at the centre of their grids
 X_rlh = log(O_rlh+1); % take the log of the latin-hypercube sampled values, to increase density of sampling. add 1 to remove negative terms. max values limited to ln(2)
@@ -81,9 +90,13 @@ for i = 1:iterations
     % HV = Hypervolume_MEX()
     progress = i/iterations;
     waitbar(progress,f,"Iteration " + num2str(i) + " of " + num2str(iterations))
+    % display("Iteration " + num2str(i) + " of " + num2str(iterations))
     scatter(P(:,1),P(:,2),"filled","black",'MarkerFaceAlpha',progress,'MarkerEdgeAlpha',progress)
     hold on
 end
+
+close(f)
+delete(f)
 
 finalRanks = ranks(newPop,:);
 
@@ -107,10 +120,51 @@ hold on
 scatter3(P_100(:,1),P_100(:,2),finalRanks(finalRanks == 100),'filled','r')
 legend("Dominated Solutions","Pareto Front")
 
+
+% create a matrix of subplots of pareto plots for every objective combination 
+
 figure(4)
-scatter(P(:,3),P(:,4))
-hold on
-scatter(P_100(:,3),P_100(:,4),'filled','r')
-legend("Dominated Solutions","Pareto Front")
-ylabel("$Max closed-loop pole$",'Interpreter','latex', 'FontSize',font_label)
-xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
+tiledlayout(10,10);
+hold off
+for objective_row = 1:10
+    for objective_col = 1:objective_row
+        nexttile((objective_row-1)*10 + objective_col)
+        
+        display("plot " + num2str((objective_row - 1)*10 + objective_col)+" row: " + num2str(objective_row) + " col: " + num2str(objective_col))
+
+        if objective_col == 1
+            ylabel(performance_criteria{2 + objective_row})
+            display(performance_criteria{2 + objective_row})
+        elseif objective_row == 10
+            xlabel(performance_criteria{2 + objective_col})
+            display(performance_criteria{2 + objective_col})
+        end
+
+        if objective_col == objective_row
+
+            histogram(P(:,2 + objective_col))
+            display("plotted histogram")
+            
+        elseif objective_col > objective_row
+            
+            display("skipped")
+            continue
+        else
+
+            scatter(P(:,2 + objective_col),P(:,2 + objective_row),'filled')
+            % hold on
+            % scatter(P_100(:,2 + objective_col),P_100(:,2 + objective_row),'filled','r')
+            % yline(goals(objective_row))
+            % xline(goals(objective_col))
+            % xlim([0 goals(objective_col) + 1])
+            % ylim([0 goals(objective_row) + 1])
+            display("plotted subplot")
+        
+        end
+    end
+end
+
+% t.TileSpacing = 'compact';
+% t.Padding = 'compact';
+
+% legend("Dominated Solutions","Pareto Front")
