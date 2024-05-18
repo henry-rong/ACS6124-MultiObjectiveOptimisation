@@ -1,8 +1,11 @@
 clear all; close all; 
 
-addpath('..\Lab A\');
-addpath("EA Toolbox\");
-addpath("Hypervolume\");
+addpath("..\scripts\");
+addpath("..\scripts\EA Toolbox");
+addpath("..\scripts\evaluation\");
+addpath("..\scripts\Hypervolume");
+addpath("..\scripts\Mex files");
+addpath("..\scripts\sampling");
 rng(2024, "twister");
 
 performance_criteria = {
