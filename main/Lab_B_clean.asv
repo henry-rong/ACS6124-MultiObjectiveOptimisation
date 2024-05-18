@@ -20,7 +20,7 @@ performance_criteria = {
 'undershoot (% points)',
 '2% settling time',
 'steady-state error (% points))',
-'aggregate control input (MJ)'};
+'aggregate control input (MJ)}'};
 
 samples = 100;
 dimensions = 2;
@@ -45,19 +45,10 @@ f = waitbar(0,'1','Name','Running iterations',...
 
 %% 5.2.3 - 150 iterations. match full range of preferences.
 
-% iterations = 150;
-% goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
-% goals2 = [zeros(1,12) ; [1 1] goals];
-% priorities = [3 2 2 1 0 1 0 0 1 2];
-
-%% own interpretation 
-
-iterations = 250;
+iterations = 150;
 goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
 goals2 = [zeros(1,12) ; [1 1] goals];
-priorities = [1 4 4 3 2 3 2 2 3 4];
-
-
+priorities = [3 2 2 1 0 1 0 0 1 2];
 
 O_rlh = rlh(samples,dimensions,0); % latin hypercube sample for 100 samples in 2 dimensions, with points at the centre of their grids
 X_rlh = log(O_rlh+1); % take the log of the latin-hypercube sampled values, to increase density of sampling. add 1 to remove negative terms. max values limited to ln(2)
@@ -116,16 +107,10 @@ hold on
 scatter3(P_100(:,1),P_100(:,2),finalRanks(finalRanks == 100),'filled','r')
 legend("Dominated Solutions","Pareto Front")
 
-for par = 4:12
-
-    figure(par)
-    scatter(P(:,par-1),P(:,par))
-    hold on
-    scatter(P_100(:,par-1),P_100(:,par),'filled','r')
-    legend("Dominated Solutions","Pareto Front")
-    xlabel(performance_criteria{par-1})
-    ylabel(performance_criteria{par})
-    xline(goals(par-1-2))
-    yline(goals(par-2))
-
-end
+figure(4)
+scatter(P(:,3),P(:,4))
+hold on
+scatter(P_100(:,3),P_100(:,4),'filled','r')
+legend("Dominated Solutions","Pareto Front")
+ylabel("$Max closed-loop pole$",'Interpreter','latex', 'FontSize',font_label)
+xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
