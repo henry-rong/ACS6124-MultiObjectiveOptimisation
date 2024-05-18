@@ -124,8 +124,11 @@ legend("Dominated Solutions","Pareto Front")
 % create a matrix of subplots of pareto plots for every objective combination 
 
 figure(4)
-tiledlayout(10,10);
-hold off
+hold on
+tiledlayout(10,10, ...
+    "TileSpacing","compact", ...
+    "Padding","compact");
+
 for objective_row = 1:10
     for objective_col = 1:objective_row
         tile_num = (objective_row-1)*10 + objective_col;
@@ -148,7 +151,7 @@ for objective_row = 1:10
             
         else
 
-            scatter(P(:,2 + objective_col),P(:,2 + objective_row),'filled')
+            scatter(P(:,2 + objective_col),P(:,2 + objective_row),'filled',sz = 1)
             % hold on
             % scatter(P_100(:,2 + objective_col),P_100(:,2 + objective_row),'filled','r')
             % yline(goals(objective_row))
@@ -161,7 +164,4 @@ for objective_row = 1:10
     end
 end
 
-% t.TileSpacing = 'compact';
-% t.Padding = 'compact';
-
-% legend("Dominated Solutions","Pareto Front")
+hold off

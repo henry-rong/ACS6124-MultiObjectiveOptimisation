@@ -124,11 +124,14 @@ legend("Dominated Solutions","Pareto Front")
 % create a matrix of subplots of pareto plots for every objective combination 
 
 figure(4)
-tiledlayout(10,10);
-hold off
+hold on
+tiledlayout(10,10, ...
+    "TileSpacing");
+
 for objective_row = 1:10
     for objective_col = 1:objective_row
-        nexttile((objective_row-1)*10 + objective_col)
+        tile_num = (objective_row-1)*10 + objective_col;
+        nexttile(tile_num)
         
         display("plot " + num2str((objective_row - 1)*10 + objective_col)+" row: " + num2str(objective_row) + " col: " + num2str(objective_col))
 
@@ -145,10 +148,6 @@ for objective_row = 1:10
             histogram(P(:,2 + objective_col))
             display("plotted histogram")
             
-        elseif objective_col > objective_row
-            
-            display("skipped")
-            continue
         else
 
             scatter(P(:,2 + objective_col),P(:,2 + objective_row),'filled')
