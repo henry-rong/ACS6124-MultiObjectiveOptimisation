@@ -23,7 +23,7 @@ samples = 100;
 dimensions = 2;
 goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
 goals2 = [zeros(1,12) ; [1 1] goals];
-priorities = [1 4 4 3 2 3 4 2 3 4]; % higher is higher priority, 1 is hard constaint
+priorities = [1 4 4 3 2 3 2 2 3 4]; % higher is higher priority, 1 is hard constaint
 
 O_rlh = rlh(samples,dimensions,0); % latin hypercube sample for 100 samples in 2 dimensions, with points at the centre of their grids
 X_rlh = log(O_rlh+1); % take the log of the latin-hypercube sampled values, to increase density of sampling. add 1 to remove negative terms. max values limited to ln(2)
