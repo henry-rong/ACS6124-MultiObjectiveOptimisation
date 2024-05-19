@@ -45,7 +45,7 @@ f = waitbar(0,'Initialising','Name','Running iterations',...
 
 %% 5.2.3 - 150 iterations. match full range of preferences.
 
-iterations = 1;
+iterations = 150;
 goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
 goals2 = [zeros(1,12) ; [1 1] goals];
 priorities = [3 2 2 1 0 1 0 0 1 2];
@@ -62,7 +62,7 @@ priorities = [3 2 2 1 0 1 0 0 1 2];
 O_rlh = rlh(samples,dimensions,0); % latin hypercube sample for 100 samples in 2 dimensions, with points at the centre of their grids
 X_rlh = log(O_rlh+1); % take the log of the latin-hypercube sampled values, to increase density of sampling. add 1 to remove negative terms. max values limited to ln(2)
 
-P = generatePopulation(X_rlh); % preprocesses input to evaluate for Z, changes gain margin unit to decibels, changes phase margin to distance from midpoint, appends inputs (for comparison)
+P = generatePopulation(O_rlh); % preprocesses input to evaluate for Z, changes gain margin unit to decibels, changes phase margin to distance from midpoint, appends inputs (for comparison)
 P_start = P;
 Phiq = mmphi(X_rlh, 1, 1)
 

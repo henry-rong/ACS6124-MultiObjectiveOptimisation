@@ -17,9 +17,11 @@ rng(2024, "twister");
 %% 4.1 - generate sampling plans
 
 % full factorial
-X_ff = log(fullfactorial([10 10],0)+1);
+% X_ff = log(fullfactorial([10 10],0)+1);
+X_ff = fullfactorial([10 10],0);
 % latin hypercube
-X_rlh = log(rlh(numPoints,dimensions,0)+1);
+% X_rlh = log(rlh(numPoints,dimensions,0)+1);
+X_rlh = rlh(numPoints,dimensions,0);
 % sobol sequence
 X_sobol = net(sobolset(dimensions),numPoints);
 
@@ -29,22 +31,22 @@ c_rlh = colorvar(X_rlh(:,1),X_rlh(:,2));
 c_sobol = colorvar(X_sobol(:,1),X_sobol(:,2));
 
 figure(1)
-set(gcf,'Position',[100 100 300 300])
+set(gcf,'Position',[100 100 200 200])
 scatter(X_ff(:,1),X_ff(:,2),20,c_ff, 'filled')
-ylabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
-xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
+xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
+ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 grid on
 figure(2)
-set(gcf,'Position',[100 100 300 300])
+set(gcf,'Position',[100 100 200 200])
 scatter(X_rlh(:,1),X_rlh(:,2),20,c_rlh, 'filled')
-ylabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
-xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
+xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
+ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 grid on
 figure(3)
-set(gcf,'Position',[100 100 300 300])
+set(gcf,'Position',[100 100 200 200])
 scatter(X_sobol(:,1),X_sobol(:,2),20,c_sobol, 'filled')
-ylabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
-xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
+xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
+ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 grid on
 
 %% 4.2 - assess sampling plan
