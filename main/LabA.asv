@@ -29,19 +29,16 @@ c_rlh = colorvar(X_rlh(:,1),X_rlh(:,2));
 c_sobol = colorvar(X_sobol(:,1),X_sobol(:,2));
 
 figure(1)
-set(gcf,'Position',[100 100 300 300])
 scatter(X_ff(:,1),X_ff(:,2),20,c_ff, 'filled')
 ylabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 grid on
 figure(2)
-set(gcf,'Position',[100 100 300 300])
 scatter(X_rlh(:,1),X_rlh(:,2),20,c_rlh, 'filled')
 ylabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 grid on
 figure(3)
-set(gcf,'Position',[100 100 300 300])
 scatter(X_sobol(:,1),X_sobol(:,2),20,c_sobol, 'filled')
 ylabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 xlabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
@@ -92,7 +89,7 @@ tab_sobol = sortrows(array2table(P_sobol, 'VariableNames', performance_criteria)
 
 %% Plot the parallel coordinates with custom colors for each group
 figure(4)
-set(gcf,'Position',[100 100 1000 400])
+set(gcf,'Position',[100 100 500 400])
 p1 = parallelplot(tab_ff, 'GroupVariable', "Kp", 'Color', sortrows(c_ff,3),'DataNormalization','range');
 p1.LegendVisible = 'off';
 S1 = struct(p1);
@@ -101,7 +98,7 @@ S1.Axes.XTickLabel = criteria_latex;
 grid on;
 
 figure(5)
-set(gcf,'Position',[100 100 1000 400])
+set(gcf,'Position',[100 100 500 400])
 p2 = parallelplot(tab_rlh, 'GroupVariable', "Kp", 'Color', sortrows(c_rlh,3),'DataNormalization','range');
 p2.LegendVisible = 'off';
 S2 = struct(p2);
@@ -110,7 +107,7 @@ S2.Axes.XTickLabel = criteria_latex;
 grid on;
 
 figure(6)
-set(gcf,'Position',[100 100 1000 400])
+set(gcf,'Position',[100 100 500 400])
 p3 = parallelplot(tab_sobol, 'GroupVariable', "Kp", 'Color', sortrows(c_sobol,3),'DataNormalization','range');
 p3.LegendVisible = 'off';
 S3 = struct(p3);
