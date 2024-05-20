@@ -50,11 +50,12 @@ goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optim
 bounds = [0 0 ; 1 1];
 priorities = [4 3 3 2 1 2 1 1 2 3];
 
-X_sobol = net(sobolset(dimensions),samples);
+% X_sobol = net(sobolset(dimensions),samples);
 
+X = rlh(samples,dimensions,0);
 
 % initialise population
-P = generatePopulation(X_sobol);
+P = generatePopulation(X);
 P_start = P;
 
 % enter main loop of optimiser
@@ -66,10 +67,10 @@ for i = 1:iterations
 
     % Step 2: Selection-for-variation operator: generate mating pool
     selectThese = btwr([ranks distances],samples);
-    P = P(selectThese,:);
+    parents = P(selectThese,:);
 
     % Step 3: Produce offspring using variation operators
-    postCross = sbx(P(:,1:2), bounds);
+    postCross = sbx(parents(:,1:2), bounds);
     postMute = polymut(postCross,bounds);
     Q = generatePopulation(postCross);
 
