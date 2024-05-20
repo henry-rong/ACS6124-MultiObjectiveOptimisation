@@ -45,7 +45,7 @@ font_label = 14;
 
 %% 5.2.3 - match full range of preferences.
 
-iterations = 40;
+iterations = 20;
 goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
 bounds = [0 0 ; 1 1];
 priorities = [4 3 3 2 1 2 1 1 2 3];
@@ -62,10 +62,10 @@ for i = 1:iterations
 
     % Step 1: Non-dominated sorting of parents
     ranks = rank_prf(P(:,3:12),goals,priorities); % Rank 0 is best. Class contains highest value of priority that is violated. Satisfying points -1.
-    distances = crowding(P,ranks);
+    distances = crowding(P(:,3:12),ranks);
 
     % Step 2: Selection-for-variation operator: generate mating pool
-    selectThese = btwr(ranks,distances,samples);
+    selectThese = btwr([ranks distances],samples);
     P = P(selectThese,:);
 
     % Step 3: Produce offspring using variation operators
@@ -76,8 +76,8 @@ for i = 1:iterations
     % Step 4: Selection-for-survival operator
     unifiedPop = [P;Q];
     ranks = rank_prf(unifiedPop(:,3:12),goals,priorities);
-    distances = crowding(unifiedPop,ranks);
-    newPop = reducerNSGA_II(unifiedPop,ranks,distances);
+    distances = crowding(unifiedPop(:,3:12),ranks);
+    newPop = reducerNSGA_II(unifiedPop(:,1:2),ranks,distances);
     P = unifiedPop(newPop,:);
     % HV = Hypervolume_MEX()
 
@@ -97,6 +97,9 @@ P(:,4) = -P(:,4);
 
 finalRanks = ranks(newPop,:);
 
+xlim([0 1])
+ylim([0 1])
+
 xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 
@@ -109,19 +112,21 @@ tab_rlh = array2table(P,'VariableNames',performance_criteria);
 p2 = parallelplot(tab_rlh)
 
 figure(3)
-P_100 = P(finalRanks == max(finalRanks),:)
+P_100 = P(finalRanks == min(finalRanks),:)
 scatter3(P(:,1),P(:,2),finalRanks,'filled')
 xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
+xlim([0 1])
+ylim([0 1])
 zlabel("$Rank$",'Interpreter','latex', 'FontSize',font_label)
 hold on
-scatter3(P_100(:,1),P_100(:,2),finalRanks(finalRanks ==  max(finalRanks)),'filled','r')
+scatter3(P_100(:,1),P_100(:,2),finalRanks(finalRanks ==  min(finalRanks)),'filled','r')
 legend("Dominated Solutions","Pareto Front")
 
 % create a matrix of subplots of pareto plots for every objective combination 
 
 figure(4)
-hold on
+
 tiledlayout(10,10, ...
     "TileSpacing","compact", ...
     "Padding","compact");
@@ -130,6 +135,9 @@ for objective_row = 1:10
     for objective_col = 1:objective_row
         tile_num = (objective_row-1)*10 + objective_col;
         nexttile(tile_num)
+
+        hold on
+
         if objective_col ~= 1
             set(gca, "YTickLabel", []);
         else
@@ -146,6 +154,8 @@ for objective_row = 1:10
         else
             scatter(P(:,2 + objective_col),P(:,2 + objective_row),10,'filled')
         end
+
+        hold on
 
     end
 end
