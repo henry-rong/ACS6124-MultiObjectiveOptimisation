@@ -22,9 +22,24 @@ performance_criteria = {
 'steady-state error (% points))',
 'aggregate control input (MJ)'};
 
+criteria_latex = {
+'$K_p$',
+'$K_i$',
+'$closed-loop \ pole$',
+'$GM$',
+'$PM$',
+'$t_{10-90\%} \ (s)$',
+'$t_{peak} \ (s)$',
+'$overshoot \ (\%)$',
+'$undershoot \ (\%)$',
+'$t_{2\%} (s)$',
+'$error_{ss} (\%))$',
+'$u \ (MJ)$'};
+
 samples = 100;
 dimensions = 2;
 font_label = 14;
+
 
 % f = waitbar(0,'1','Name','Running iterations',...
 %     'CreateCancelBtn','setappdata(gcbf,''canceling'',1)');
@@ -46,11 +61,12 @@ font_label = 14;
 %% 5.2.3 - match full range of preferences.
 
 iterations = 20;
+offset = 0.2*iterations;
 goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
 bounds = [0 0 ; 1 1];
 priorities = [4 3 3 2 1 2 1 1 2 3];
 
-% X_sobol = net(sobolset(dimensions),samples);
+% X = net(sobolset(dimensions),samples);
 
 X = rlh(samples,dimensions,0);
 
@@ -83,7 +99,7 @@ for i = 1:iterations
     % HV = Hypervolume_MEX()
 
     % Visualise optimisation progress
-    progress = i/iterations;
+    progress = (i+offset)/(iterations+offset);
     % waitbar(progress,f,"Iteration " + num2str(i) + " of " + num2str(iterations))
     display("Iteration " + num2str(i) + " of " + num2str(iterations))
     scatter(P(:,1),P(:,2),"filled","black",'MarkerFaceAlpha',progress,'MarkerEdgeAlpha',progress)
@@ -105,12 +121,26 @@ xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 
 hold off
+%% k-means clustering
+figure;
+idx = kmeans(P(:,1:2),3);
+plot(P(idx==1,1),P(idx==1,2),'r.','MarkerSize',12)
+hold on
+plot(P(idx==2,1),P(idx==2,2),'b.','MarkerSize',12)
+plot(P(idx==3,1),P(idx==3,2),'g.','MarkerSize',12)
+xlim([0 1])
+ylim([0 1])
+xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
+ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
+
+
+%%
 display(P)
 
 figure(2)
 
 tab_rlh = array2table(P,'VariableNames',performance_criteria);
-p2 = parallelplot(tab_rlh)
+p2 = parallelplot(tab_rlh,'Color',idx)
 
 figure(3)
 P_100 = P(finalRanks == min(finalRanks),:)
@@ -142,18 +172,32 @@ for objective_row = 1:10
         if objective_col ~= 1
             set(gca, "YTickLabel", []);
         else
-            ylabel(performance_criteria{2 + objective_row})
+            ylabel(criteria_latex{2 + objective_row},"Interpreter","latex")
+            set(get(gca,'YLabel'),'Rotation',90)
         end
         if objective_row ~= 10
             set(gca, "XTickLabel", []);
         else
-            xlabel(performance_criteria{2 + objective_col})
+            xlabel(criteria_latex{2 + objective_col},"Interpreter","latex")
         end
 
         if objective_col == objective_row
             histogram(P(:,2 + objective_col))
         else
             scatter(P(:,2 + objective_col),P(:,2 + objective_row),10,'filled')
+            yline(goals(objective_row))
+            xline(goals(objective_col))
+            
+            xrange = [goals(objective_col); P(:,2 + objective_col)];
+            xmin = min(xrange);
+            xmax = max(xrange);
+
+            yrange = [goals(objective_row); P(:,2 + objective_row)];
+            ymin = min(yrange);
+            ymax = max(yrange);
+
+            xlim([0.9*xmin xmax*1.1])
+            ylim([0.9*ymin ymax*1.1])
         end
 
         hold on

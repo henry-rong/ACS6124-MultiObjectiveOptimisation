@@ -50,9 +50,9 @@ ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 grid on
 
 %% 4.2 - assess sampling plan
-Phiq_ff = mmphi(X_ff, 1, 1)
-Phiq_rlh = mmphi(X_rlh, 1, 1)
-Phiq_sobol = mmphi(X_sobol, 1, 1)
+Phiq_ff = mmphi(X_ff, 5, 1)
+Phiq_rlh = mmphi(X_rlh, 5, 1)
+Phiq_sobol = mmphi(X_sobol, 5, 1)
 
 performance_criteria = {
 'Kp',
