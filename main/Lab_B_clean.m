@@ -11,34 +11,34 @@ rng(2024, "twister");
 performance_criteria = {
 'Kp',
 'Ki',
-'max closed-loop pole magnitude',
+'max closed-loop pole',
 'gain margin',
 'phase margin',
-'10-90% rise time',
-'peak time',
+'10-90% rise time (s)',
+'peak time (s)',
 'overshoot (% points)',
 'undershoot (% points)',
-'2% settling time',
+'2% settling time (s)',
 'steady-state error (% points))',
-'aggregate control input (MJ)'};
+'aggregate control input (MJ)}'};
 
 criteria_latex = {
 '$K_p$',
 '$K_i$',
-'$closed-loop \ pole$',
-'$GM$',
-'$PM$',
+'$|P_{CL}|$',
+'$GM (^o)$',
+'$PM (^o)$',
 '$t_{10-90\%} \ (s)$',
 '$t_{peak} \ (s)$',
-'$overshoot \ (\%)$',
-'$undershoot \ (\%)$',
+'$\Delta_{over} \ (\%)$',
+'$\Delta_{under} \ (\%)$',
 '$t_{2\%} (s)$',
-'$error_{ss} (\%))$',
-'$u \ (MJ)$'};
+'$e_{ss} (\%)$',
+'$E \ (MJ)$'};
 
 samples = 100;
 dimensions = 2;
-font_label = 14;
+font_label = 12;
 
 
 % f = waitbar(0,'1','Name','Running iterations',...
@@ -122,25 +122,56 @@ ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 
 hold off
 %% k-means clustering
-figure;
 idx = kmeans(P(:,1:2),3);
+
+
+figure;
+set(gcf,'Position',[100 100 1000 400])
 plot(P(idx==1,1),P(idx==1,2),'r.','MarkerSize',12)
 hold on
-plot(P(idx==2,1),P(idx==2,2),'b.','MarkerSize',12)
-plot(P(idx==3,1),P(idx==3,2),'g.','MarkerSize',12)
+plot(P(idx==2,1),P(idx==2,2),'g*','MarkerSize',12)
+plot(P(idx==3,1),P(idx==3,2),'bx','MarkerSize',12)
 xlim([0 1])
 ylim([0 1])
 xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
+grid on
+
+c_idx = zeros(samples,3);
+
+for id = 1:length(idx)
+    if idx(id) == 1
+        red = 1;
+        green = 0;
+        blue = 0;
+    end
+    if idx(id) == 2
+        red = 0;
+        green = 1;
+        blue = 0;
+    end
+    if idx(id) == 3
+        red = 0;
+        green = 0;
+        blue = 1;
+    end
+    c_idx(id,:) = [red, green, blue];
+end
 
 
 %%
 display(P)
 
 figure(2)
-
+set(gcf,'Position',[100 100 1000 400])
 tab_rlh = array2table(P,'VariableNames',performance_criteria);
-p2 = parallelplot(tab_rlh,'Color',idx)
+[B,I] = sortrows(idx,'descend');
+p2 = parallelplot(tab_rlh,'GroupVariable','Kp','Color',c_idx)
+% p2.LegendVisible = 'off';
+% S2 = struct(p2);
+% S2.Axes.TickLabelInterpreter='latex';
+% S2.Axes.XTickLabel = criteria_latex;
+grid on;
 
 figure(3)
 P_100 = P(finalRanks == min(finalRanks),:)
@@ -172,19 +203,20 @@ for objective_row = 1:10
         if objective_col ~= 1
             set(gca, "YTickLabel", []);
         else
-            ylabel(criteria_latex{2 + objective_row},"Interpreter","latex")
+            ylabel(criteria_latex{2 + objective_row},"Interpreter","latex",'FontSize',font_label)
             set(get(gca,'YLabel'),'Rotation',90)
         end
         if objective_row ~= 10
             set(gca, "XTickLabel", []);
         else
-            xlabel(criteria_latex{2 + objective_col},"Interpreter","latex")
+            xlabel(criteria_latex{2 + objective_col},"Interpreter","latex",'FontSize',font_label)
         end
 
         if objective_col == objective_row
-            histogram(P(:,2 + objective_col))
+            [f,xi] = ksdensity(P(:,2 + objective_col));
+            plot(xi,f,'LineWidth',2)
         else
-            scatter(P(:,2 + objective_col),P(:,2 + objective_row),10,'filled')
+            g = gscatter(P(:,2 + objective_col),P(:,2 + objective_row),idx,'rgb','.*x',8,'off')
             yline(goals(objective_row))
             xline(goals(objective_col))
             
