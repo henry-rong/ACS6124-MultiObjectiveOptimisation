@@ -26,7 +26,7 @@ criteria_latex = {
 '$K_p$',
 '$K_i$',
 '$|P_{CL}|$',
-'$GM (^o)$',
+'$GM (dB)$',
 '$PM (^o)$',
 '$t_{10-90\%} \ (s)$',
 '$t_{peak} \ (s)$',
@@ -66,9 +66,18 @@ goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optim
 bounds = [0 0 ; 1 1];
 priorities = [4 3 3 2 1 2 1 1 2 3];
 
-% X = net(sobolset(dimensions),samples);
+%% sustainability case
 
-X = rlh(samples,dimensions,0);
+% iterations = 20;
+% offset = 0.2*iterations;
+% goals = [1 6 20 2 10 10 8 20 1 0.63]; %  target values defined by context. optimisation should be less than these values.
+% bounds = [0 0 ; 1 1];
+% priorities = [4 3 3 2 1 2 1 1 2 3];
+
+
+X = net(sobolset(dimensions),samples);
+
+% X = rlh(samples,dimensions,0);
 
 % initialise population
 P = generatePopulation(X);
@@ -96,7 +105,9 @@ for i = 1:iterations
     distances = crowding(unifiedPop(:,3:12),ranks);
     newPop = reducerNSGA_II(unifiedPop(:,1:2),ranks,distances);
     P = unifiedPop(newPop,:);
-    % HV = Hypervolume_MEX()
+
+
+    HV = Hypervolume_MEX(P(:,3:12),goals)
 
     % Visualise optimisation progress
     progress = (i+offset)/(iterations+offset);
@@ -122,11 +133,20 @@ ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 
 hold off
 %% k-means clustering
-idx = kmeans(P(:,1:2),3);
+[idx,C] = kmeans(P(:,1:2),3);
 
+distancesFromOrigin = sqrt(C(:, 1) .^ 2 + C(:, 2) .^2);
+[sortedDistances, sortOrder] = sort(distancesFromOrigin, 'ascend')
+newClassNumbers = zeros(length(idx), 1);
+for k = 1 : size(C, 1)
+    currentClassLocations = idx == k;
+    newClassNumber = find(k == sortOrder);
+    newClassNumbers(currentClassLocations) = newClassNumber;
+end
+idx = newClassNumbers;
 
-figure;
-set(gcf,'Position',[100 100 1000 400])
+figure(2)
+set(gcf,'Position',[100 100 500 300])
 plot(P(idx==1,1),P(idx==1,2),'r.','MarkerSize',12)
 hold on
 plot(P(idx==2,1),P(idx==2,2),'g*','MarkerSize',12)
@@ -136,6 +156,9 @@ ylim([0 1])
 xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
 ylabel("$K_i$",'Interpreter','latex', 'FontSize',font_label)
 grid on
+
+hold off
+
 
 c_idx = zeros(samples,3);
 
@@ -162,18 +185,17 @@ end
 %%
 display(P)
 
-figure(2)
+figure(3)
 set(gcf,'Position',[100 100 1000 400])
 tab_rlh = array2table(P,'VariableNames',performance_criteria);
 [B,I] = sortrows(idx,'descend');
-p2 = parallelplot(tab_rlh,'GroupVariable','Kp','Color',c_idx)
-% p2.LegendVisible = 'off';
+p2 = parallelplot(tab_rlh,'GroupVariable','Kp','Color',c_idx);
+p2.LegendVisible = 'off';
 % S2 = struct(p2);
 % S2.Axes.TickLabelInterpreter='latex';
 % S2.Axes.XTickLabel = criteria_latex;
-grid on;
 
-figure(3)
+figure(4)
 P_100 = P(finalRanks == min(finalRanks),:)
 scatter3(P(:,1),P(:,2),finalRanks,'filled')
 xlabel("$K_p$",'Interpreter','latex', 'FontSize',font_label)
@@ -187,8 +209,8 @@ legend("Dominated Solutions","Pareto Front")
 
 % create a matrix of subplots of pareto plots for every objective combination 
 
-figure(4)
-
+figure(5)
+set(gcf,'Position',[100 100 1000 800])
 tiledlayout(10,10, ...
     "TileSpacing","compact", ...
     "Padding","compact");
@@ -216,9 +238,9 @@ for objective_row = 1:10
             [f,xi] = ksdensity(P(:,2 + objective_col));
             plot(xi,f,'LineWidth',2)
         else
-            g = gscatter(P(:,2 + objective_col),P(:,2 + objective_row),idx,'rgb','.*x',8,'off')
-            yline(goals(objective_row))
-            xline(goals(objective_col))
+            g = gscatter(P(:,2 + objective_col),P(:,2 + objective_row),idx,'rgb','o*x',4,'off');
+            yline(goals(objective_row),':')
+            xline(goals(objective_col),':')
             
             xrange = [goals(objective_col); P(:,2 + objective_col)];
             xmin = min(xrange);

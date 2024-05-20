@@ -71,16 +71,16 @@ performance_criteria = {
 criteria_latex = {
 '$K_p$',
 '$K_i$',
-'$max closed-loop pole$',
-'$GM$',
-'$PM$',
-'$t_{10-90%}(s)$',
-'$t_{peak} (s)$',
-'$overshoot (% points)$',
-'$undershoot (% points)$',
-'$t_{2% settling} (s)$',
-'$error_{steady-state} (% points))$',
-'$u (MJ)$}'};
+'$|P_{CL}|$',
+'$GM (dB)$',
+'$PM (^o)$',
+'$t_{10-90\%} \ (s)$',
+'$t_{peak} \ (s)$',
+'$\Delta_{over} \ (\%)$',
+'$\Delta_{under} \ (\%)$',
+'$t_{2\%} (s)$',
+'$e_{ss} (\%)$',
+'$E \ (MJ)$'};
 
 % preprocess gain margin and phase margins
 P_ff = generatePopulation(X_ff);

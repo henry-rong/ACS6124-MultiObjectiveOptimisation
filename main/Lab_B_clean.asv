@@ -26,7 +26,7 @@ criteria_latex = {
 '$K_p$',
 '$K_i$',
 '$|P_{CL}|$',
-'$GM (^o)$',
+'$GM (dB)$',
 '$PM (^o)$',
 '$t_{10-90\%} \ (s)$',
 '$t_{peak} \ (s)$',
@@ -60,7 +60,7 @@ font_label = 12;
 
 %% 5.2.3 - match full range of preferences.
 
-iterations = 20;
+iterations = 100;
 offset = 0.2*iterations;
 goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
 bounds = [0 0 ; 1 1];
@@ -96,7 +96,9 @@ for i = 1:iterations
     distances = crowding(unifiedPop(:,3:12),ranks);
     newPop = reducerNSGA_II(unifiedPop(:,1:2),ranks,distances);
     P = unifiedPop(newPop,:);
-    % HV = Hypervolume_MEX()
+
+
+    HV = Hypervolume_MEX(P(:,3:12),goals)
 
     % Visualise optimisation progress
     progress = (i+offset)/(iterations+offset);
@@ -165,11 +167,12 @@ display(P)
 figure(2)
 set(gcf,'Position',[100 100 1000 400])
 tab_rlh = array2table(P,'VariableNames',performance_criteria);
-p2 = parallelplot(tab_rlh,'GroupVariable','Kp','Color',c_i(sortrow(idx))
-p2.LegendVisible = 'off';
-S2 = struct(p2);
-S2.Axes.TickLabelInterpreter='latex';
-S2.Axes.XTickLabel = criteria_latex;
+[B,I] = sortrows(idx,'descend');
+p2 = parallelplot(tab_rlh,'GroupVariable','Kp','Color',c_idx)
+% p2.LegendVisible = 'off';
+% S2 = struct(p2);
+% S2.Axes.TickLabelInterpreter='latex';
+% S2.Axes.XTickLabel = criteria_latex;
 grid on;
 
 figure(3)
