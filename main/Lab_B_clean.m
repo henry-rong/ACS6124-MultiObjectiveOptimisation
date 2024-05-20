@@ -60,19 +60,19 @@ font_label = 12;
 
 %% 5.2.3 - match full range of preferences.
 
-iterations = 20;
-offset = 0.2*iterations;
-goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
-bounds = [0 0 ; 1 1];
-priorities = [4 3 3 2 1 2 1 1 2 3];
+% iterations = 20;
+% offset = 0.2*iterations;
+% goals = [1 6 20 2 10 10 8 20 1 0.67]; %  target values defined by context. optimisation should be less than these values.
+% bounds = [0 0 ; 1 1];
+% priorities = [4 3 3 2 1 2 1 1 2 3];
 
 %% sustainability case
 
-% iterations = 20;
-% offset = 0.2*iterations;
-% goals = [1 6 20 2 10 10 8 20 1 0.63]; %  target values defined by context. optimisation should be less than these values.
-% bounds = [0 0 ; 1 1];
-% priorities = [4 3 3 2 1 2 1 1 2 3];
+iterations = 20;
+offset = 0.2*iterations;
+goals = [1 6 20 2 10 10 8 20 1 0.63]; %  target values defined by context. optimisation should be less than these values.
+bounds = [0 0 ; 1 1];
+priorities = [4 3 3 2 1 2 1 1 2 3];
 
 
 X = net(sobolset(dimensions),samples);

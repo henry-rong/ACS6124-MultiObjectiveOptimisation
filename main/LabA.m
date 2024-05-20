@@ -97,25 +97,25 @@ figure(4)
 set(gcf,'Position',[100 100 1000 400])
 p1 = parallelplot(tab_ff, 'GroupVariable', "Kp", 'Color', sortrows(c_ff,3),'DataNormalization','range');
 p1.LegendVisible = 'off';
-S1 = struct(p1);
-S1.Axes.TickLabelInterpreter='latex';
-S1.Axes.XTickLabel = criteria_latex;
-grid on;
+% S1 = struct(p1);
+% S1.Axes.TickLabelInterpreter='latex';
+% S1.Axes.XTickLabel = criteria_latex;
+% grid on;
 
 figure(5)
 set(gcf,'Position',[100 100 1000 400])
 p2 = parallelplot(tab_rlh, 'GroupVariable', "Kp", 'Color', sortrows(c_rlh,3),'DataNormalization','range');
 p2.LegendVisible = 'off';
-S2 = struct(p2);
-S2.Axes.TickLabelInterpreter='latex';
-S2.Axes.XTickLabel = criteria_latex;
-grid on;
+% S2 = struct(p2);
+% S2.Axes.TickLabelInterpreter='latex';
+% S2.Axes.XTickLabel = criteria_latex;
+% grid on;
 
 figure(6)
 set(gcf,'Position',[100 100 1000 400])
 p3 = parallelplot(tab_sobol, 'GroupVariable', "Kp", 'Color', sortrows(c_sobol,3),'DataNormalization','range');
 p3.LegendVisible = 'off';
-S3 = struct(p3);
-S3.Axes.TickLabelInterpreter='latex';
-S3.Axes.XTickLabel = criteria_latex;
-grid on;
+% S3 = struct(p3);
+% S3.Axes.TickLabelInterpreter='latex';
+% S3.Axes.XTickLabel = criteria_latex;
+% grid on;
